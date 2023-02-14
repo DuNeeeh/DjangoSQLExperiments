@@ -1,0 +1,74 @@
+from news import *
+u2 = User.objects.create_user(username='Viktor')
+u1 = User.objects.create_user(Username='David')
+Author.objects.create(authorUser=u1)
+Author.objects.create(authorUser=u2)
+
+Category.objects.create(name='IT')
+Category.objects.create(name='HR')
+Category.objects.create(name='PR')
+Category.objects.create(name='DM')
+
+author = Author.objects.get(id=1)
+author
+Post.objects.create(author=author, categoryType='AR', title='Новое поколение процессоров Intel кладет на лоп
+атки AMD???', text='Да, это правда, но я вообще на Ryzen 3600 сижу')
+Post.objects.create(author=author, categoryType='NW', title='Новое поколение видеокарт Nvidia сжигают компьютера и
+разъемы питания???', text='Знаю, что это не поле для комментария, но у друга сгорела 4090, да :(')
+
+author = Author.objects.get(id=2)
+Post.objects.create(author=author, categoryType='AR', title='Охлаждение процессоров от Montech - скрытый гем
+?', text='Ну, вообще, купил для Ryzen 3600 кулер Montech Air 210, очень мощная штука, и красивая')
+
+Post.objects.get(id=1).postCategory.add(Category.objects.get(id=1))
+Post.objects.get(id=1).postCategory.add(Category.objects.get(id=2))
+Post.objects.get(id=2).postCategory.add(Category.objects.get(id=2))
+Post.objects.get(id=3).postCategory.add(Category.objects.get(id=4))
+
+Comment.objects.create(commentPost=Post.objects.get(id=1), commentUser=Author.objects.get(id=1).authorUser,
+text='Мда...')
+Comment.objects.create(commentPost=Post.objects.get(id=2), commentUser=Author.objects.get(id=2).authorUser,
+text='Мда...')
+Comment.objects.create(commentPost=Post.objects.get(id=1), commentUser=Author.objects.get(id=2).authorUser,
+text='Не ну тут соглы')
+Comment.objects.create(commentPost=Post.objects.get(id=2), commentUser=Author.objects.get(id=2).authorUser,
+text='Чем я занимаюсь...')
+
+Затем много раз команды изменяя лишь id комментария чтобы лайкать/дизлайкать тот что нужно
+Comment.objects.get(id=1).like()
+Comment.objects.get(id=1).dislike()
+
+Comment.objects.get(id=1).rating
+Comment.objects.get(id=2).rating
+Comment.objects.get(id=3).rating
+
+Author.objects.get(id=1)
+a=Author.objects.get(id=1)
+a.update_rating()
+a.ratingAuthor
+
+Author.objects.get(id=2)
+b=Author.objects.get(id=2)
+b.update_rating()
+b.ratingAuthor
+
+Author.objects.order_by('-ratingAuthor')[:1]
+for i in a:
+...     i.ratingAuthor
+...     i.authorUser.username
+
+
+Затем я, после произвольного количества лайков/дизлайков получил следующие результаты данных команд (прикладываю полный код с результатом кода):
+Post.objects.order_by('-rating').values('dateCreation', 'author__authorUser__username', 'rating', 'title')[0
+]
+{'dateCreation': datetime.datetime(2023, 2, 14, 9, 2, 31, 181459, tzinfo=datetime.timezone.utc), 'author__author
+User__username': 'David', 'rating': 7, 'title': 'Новое поколение видеокарт Nvidia сжигают компьютера и разъемы п
+итания???'}
+
+Post.objects.order_by('-rating')[0].comment_set.all()
+<QuerySet [<Comment: Comment object (2)>, <Comment: Comment object (4)>]>
+
+
+Post.objects.order_by('-rating')[0].comment_set.all().values('dateCreation', 'commentUser__username', 'rating', 'text')
+<QuerySet [{'dateCreation': datetime.datetime(2023, 2, 14, 9, 11, 30, 909710, tzinfo=datetime.timezone.utc), 'commentUser__username': 'Viktor', 'rating': 5, 'text': 'Мда...'}, {'dateCreation': datetime.datetime(2023, 2, 14, 9, 12, 2
+8, 248055, tzinfo=datetime.timezone.utc), 'commentUser__username': 'Viktor', 'rating': -2, 'text': 'Чем я занимаюсь...'}]>
